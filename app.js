@@ -10,9 +10,8 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// MongoDB connection
 mongoose.connect(
-  `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.8zd2dbs.mongodb.net/${process.env.MONGO_DATABASE}?retryWrites=true&w=majority`,
+  `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@${process.env.MONGO_CLUSTER_URL}/${process.env.MONGO_DATABASE}?retryWrites=true&w=majority`,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
