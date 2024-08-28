@@ -344,23 +344,6 @@ app.post("/multidisciplinar/register", async (req, res) => {
   }
 
   try {
-    const registrosNoDia = await Multidisciplinar.countDocuments({ data });
-    if (registrosNoDia >= 5) {
-      return res
-        .status(400)
-        .json({ message: "Laboratório Esgotado para esse dia" });
-    }
-
-    const laboratorioExistente = await Multidisciplinar.findOne({
-      data,
-      laboratorio,
-    });
-    if (laboratorioExistente) {
-      return res.status(400).json({
-        message: "Laboratório já possui uma solicitação para esse dia",
-      });
-    }
-
     const formulario = new Multidisciplinar({
       professor,
       email,
