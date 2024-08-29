@@ -21,6 +21,9 @@ mongoose.connect(
 // Importando o modelo de mensagem
 const Message = require("./models/Message");
 
+// Importando o modelo de mensagem
+const Message = require("./models/Message");
+
 // Rota GET para obter o histórico de mensagens
 app.get("/messages", async (req, res) => {
   try {
@@ -33,23 +36,22 @@ app.get("/messages", async (req, res) => {
 
 // Rota POST para enviar uma nova mensagem
 app.post("/messages", async (req, res) => {
-  const { content } = req.body;
+  const { content, username } = req.body;
 
-  if (!content) {
+  if (!content || !username) {
     return res
       .status(400)
-      .json({ error: "Conteúdo da mensagem é obrigatório" });
+      .json({ error: "Conteúdo e nome do usuário são obrigatórios" });
   }
 
   try {
-    const newMessage = new Message({ content });
+    const newMessage = new Message({ content, username });
     await newMessage.save();
     res.status(201).json(newMessage);
   } catch (error) {
     res.status(500).json({ error: "Erro ao salvar a mensagem" });
   }
 });
-
 // Define Mongoose schemas
 const informaticaSchema = new mongoose.Schema({
   professor: String,
