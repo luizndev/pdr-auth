@@ -18,39 +18,6 @@ mongoose.connect(
   }
 );
 
-// Importando o modelo de mensagem
-const Message = require("./models/Message");
-
-// Importando o modelo de mensagem
-const Message = require("./models/Message");
-
-// Rota GET para obter o histórico de mensagens
-app.get("/messages", async (req, res) => {
-  try {
-    const messages = await Message.find().sort({ createdAt: -1 }); // Ordena por data de criação, mais recente primeiro
-    res.json(messages);
-  } catch (error) {
-    res.status(500).json({ error: "Erro ao buscar mensagens" });
-  }
-});
-
-
-// Rota POST para enviar uma nova mensagem
-app.post("/messages", async (req, res) => {
-  const { content, username } = req.body;
-
-  if (!content || !username) {
-    return res.status(400).json({ error: "Conteúdo e nome do usuário são obrigatórios" });
-  }
-
-  try {
-    const newMessage = new Message({ content, username });
-    await newMessage.save();
-    res.status(201).json(newMessage);
-  } catch (error) {
-    res.status(500).json({ error: "Erro ao salvar a mensagem" });
-  }
-});
 // Define Mongoose schemas
 const informaticaSchema = new mongoose.Schema({
   professor: String,
