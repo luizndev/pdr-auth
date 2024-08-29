@@ -34,18 +34,16 @@ app.get("/messages", async (req, res) => {
   }
 });
 
+
 // Rota POST para enviar uma nova mensagem
 app.post("/messages", async (req, res) => {
   const { content, username } = req.body;
 
   if (!content || !username) {
-    return res
-      .status(400)
-      .json({ error: "Conteúdo e nome do usuário são obrigatórios" });
+    return res.status(400).json({ error: "Conteúdo e nome do usuário são obrigatórios" });
   }
 
   try {
-    res.status({ content, username });
     const newMessage = new Message({ content, username });
     await newMessage.save();
     res.status(201).json(newMessage);
