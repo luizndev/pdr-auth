@@ -404,9 +404,12 @@ app.get("/infopush/:data", async (req, res) => {
       return res.status(404).json({ message: "Nenhuma solicitação encontrada para essa data" });
     }
 
-    const professores = registrosInformatica.map((registro) => registro.professor);
+    const solicitacoes = registrosInformatica.map((registro) => ({
+      professor: registro.professor,
+      laboratorio: registro.laboratorio, 
+    }));
 
-    res.status(200).json({ professores });
+    res.status(200).json({ solicitacoes });
   } catch (error) {
     res.status(500).json({ message: "Erro ao buscar registros", error: error.message });
   }
