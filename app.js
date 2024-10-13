@@ -394,6 +394,25 @@ app.get("/buscartoken/:id", checkToken, async (req, res) => {
   }
 });
 
+app.get("/infopush/:data", async (req, res) => {
+  const { data } = req.params;
+
+  try {
+    const registrosInformatica = await Informatica.find({ data });
+
+    if (registrosInformatica.length === 0) {
+      return res.status(404).json({ message: "Nenhuma solicitação encontrada para essa data" });
+    }
+
+    const professores = registrosInformatica.map((registro) => registro.professor);
+
+    res.status(200).json({ professores });
+  } catch (error) {
+    res.status(500).json({ message: "Erro ao buscar registros", error: error.message });
+  }
+});
+
+
 app.listen(80, () => {
   console.log("Servidor Ligado com sucesso.");
 });
