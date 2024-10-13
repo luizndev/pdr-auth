@@ -421,7 +421,6 @@ app.get("/infopush", async (req, res) => {
       return res.status(404).json({ message: "Não há reservas para sábados ou domingos" });
     }
 
-    // Formatar a data no formato necessário
     const dataFormatada = formatarData(dataFutura);
 
     const registrosInformatica = await Informatica.find({ data: dataFormatada });
@@ -440,6 +439,7 @@ app.get("/infopush", async (req, res) => {
     res.status(500).json({ message: "Erro ao buscar registros", error: error.message });
   }
 });
+
 
 app.listen(80, () => {
   console.log("Servidor Ligado com sucesso.");
