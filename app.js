@@ -207,7 +207,6 @@ const isDomainValid = (domain) => {
   });
 };
 
-// Rota para registrar um novo usuário
 app.post("/auth/register", async (req, res) => {
   const { name, email, password, confirmpassword, role } = req.body;
 
@@ -261,7 +260,6 @@ app.post("/auth/register", async (req, res) => {
   }
 });
 
-// Rota para login
 app.post("/auth/login", async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -292,7 +290,6 @@ app.post("/auth/login", async (req, res) => {
   }
 });
 
-// Rota para obter usuário por ID
 app.get("/auth/:id", checkToken, async (req, res) => {
   const id = req.params.id;
   const user = await User.findById(id);
@@ -304,7 +301,6 @@ app.get("/auth/:id", checkToken, async (req, res) => {
   res.status(200).json({ user });
 });
 
-// Rota para registrar um novo formulário multidisciplinar
 app.post("/multidisciplinar/register", async (req, res) => {
   const {
     professor,
@@ -369,7 +365,6 @@ app.post("/multidisciplinar/register", async (req, res) => {
   }
 });
 
-// Rota para buscar token específico
 app.get("/buscartoken/:id", checkToken, async (req, res) => {
   const { id } = req.params;
   try {
@@ -394,14 +389,45 @@ app.get("/buscartoken/:id", checkToken, async (req, res) => {
   }
 });
 
-app.get("/infopush/:data", async (req, res) => {
-  const { data } = req.params;
+function calcularDataFutura(diasAdicionais) {
+  let dataAtual = new Date(); 
+  let diasCorridos = 0;
 
+  while (diasCorridos < diasAdicionais) {
+    dataAtual.setDate(dataAtual.getDate() + 1); 
+    const diaSemana = dataAtual.getDay(); 
+
+    if (diaSemana >= 1 && diaSemana <= 5) {
+      diasCorridos++;
+    }
+  }
+
+  return dataAtual; 
+}
+
+function formatarData(data) {
+  const dia = String(data.getDate()).padStart(2, "0");
+  const mes = String(data.getMonth() + 1).padStart(2, "0"); 
+  const ano = data.getFullYear();
+  return `${dia}/${mes}/${ano}`;
+}
+
+app.get("/infopush", async (req, res) => {
   try {
-    const registrosInformatica = await Informatica.find({ data });
+    const dataFutura = calcularDataFutura(6);
+
+    const diaSemana = dataFutura.getDay();
+    if (diaSemana === 6 || diaSemana === 0) {
+      return res.status(404).json({ message: "Não há reservas para sábados ou domingos" });
+    }
+
+    // Formatar a data no formato necessário
+    const dataFormatada = formatarData(dataFutura);
+
+    const registrosInformatica = await Informatica.find({ data: dataFormatada });
 
     if (registrosInformatica.length === 0) {
-      return res.status(404).json({ message: "Nenhuma solicitação encontrada para essa data" });
+      return res.status(404).json({ message: `Nenhuma solicitação encontrada para o dia ${dataFormatada}` });
     }
 
     const solicitacoes = registrosInformatica.map((registro) => ({
@@ -409,12 +435,11 @@ app.get("/infopush/:data", async (req, res) => {
       laboratorio: registro.laboratorio, 
     }));
 
-    res.status(200).json({ solicitacoes });
+    res.status(200).json({ data: dataFormatada, solicitacoes });
   } catch (error) {
     res.status(500).json({ message: "Erro ao buscar registros", error: error.message });
   }
 });
-
 
 app.listen(80, () => {
   console.log("Servidor Ligado com sucesso.");
