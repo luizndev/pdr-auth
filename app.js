@@ -389,57 +389,6 @@ app.get("/buscartoken/:id", checkToken, async (req, res) => {
   }
 });
 
-function calcularDataFutura(diasAdicionais) {
-  let dataAtual = new Date(); 
-  let diasCorridos = 0;
-
-  while (diasCorridos < diasAdicionais) {
-    dataAtual.setDate(dataAtual.getDate() + 1); 
-    const diaSemana = dataAtual.getDay(); 
-
-    if (diaSemana >= 1 && diaSemana <= 5) {
-      diasCorridos++;
-    }
-  }
-
-  return dataAtual; 
-}
-
-function formatarData(data) {
-  const dia = String(data.getDate()).padStart(2, "0");
-  const mes = String(data.getMonth() + 1).padStart(2, "0"); 
-  const ano = data.getFullYear();
-  return `${dia}/${mes}/${ano}`;
-}
-
-app.get("/infopush", async (req, res) => {
-  try {
-    const dataFutura = calcularDataFutura(6);
-
-    const diaSemana = dataFutura.getDay();
-    if (diaSemana === 6 || diaSemana === 0) {
-      return res.status(404).json({ message: "Não há reservas para sábados ou domingos" });
-    }
-
-    const dataFormatada = formatarData(dataFutura);
-
-    const registrosInformatica = await Informatica.find({ data: dataFormatada });
-
-    if (registrosInformatica.length === 0) {
-      return res.status(404).json({ message: `Nenhuma solicitação encontrada para o dia ${dataFormatada}` });
-    }
-
-    const solicitacoes = registrosInformatica.map((registro) => ({
-      professor: registro.professor,
-      laboratorio: registro.laboratorio, 
-    }));
-
-    res.status(200).json({ data: dataFormatada, solicitacoes });
-  } catch (error) {
-    res.status(500).json({ message: "Erro ao buscar registros", error: error.message });
-  }
-});
-
 
 app.listen(80, () => {
   console.log("Servidor Ligado com sucesso.");
