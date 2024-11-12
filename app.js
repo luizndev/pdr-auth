@@ -389,6 +389,29 @@ app.get("/buscartoken/:id", checkToken, async (req, res) => {
   }
 });
 
+app.get("/minhassolicitacoes/:email", checkToken, async (req, res) => {
+  const { email } = req.params;
+
+  try {
+    const informaticaRecords = await Informatica.find({ email });
+
+    const multidisciplinarRecords = await Multidisciplinar.find({ email });
+
+    const todasSolicitacoes = {
+      informatica: informaticaRecords,
+      multidisciplinar: multidisciplinarRecords
+    };
+
+    res.status(200).json(todasSolicitacoes);
+  } catch (error) {
+    console.error("Erro ao obter solicitações do professor:", error);
+    res.status(500).json({
+      message: "Erro ao obter solicitações do professor",
+      error: error.message
+    });
+  }
+});
+
 
 app.listen(80, () => {
   console.log("Servidor Ligado com sucesso.");
