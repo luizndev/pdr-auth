@@ -94,7 +94,19 @@ function checkToken(req, res, next) {
 }
 
 // Rota para obter todos os registros de informática
-app.get("/informatica", checkToken, async (req, res) => {
+// app.get("/informatica", checkToken, async (req, res) => {
+//   try {
+//     const records = await Informatica.find();
+//     res.status(200).json(records);
+//   } catch (error) {
+//     res
+//       .status(500)
+//       .json({ message: "Erro ao obter registros", error: error.message });
+//   }
+// });
+
+// Rota para obter todos os registros de informática
+app.get("/informatica", async (req, res) => {
   try {
     const records = await Informatica.find();
     res.status(200).json(records);
