@@ -118,7 +118,7 @@ app.get("/informatica", async (req, res) => {
 });
 
 // Rota para obter todos os registros multidisciplinares
-app.get("/multidisciplinar", checkToken, async (req, res) => {
+app.get("/multidisciplinar", async (req, res) => {
   try {
     const records = await Multidisciplinar.find();
     res.status(200).json(records);
