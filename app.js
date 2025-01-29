@@ -199,6 +199,50 @@ app.post("/informatica/register", async (req, res) => {
   }
 });
 
+// Rota para apagar uma reserva com base no token
+app.delete("/informatica/delete/:token", async (req, res) => {
+  const { token } = req.params; // Obtém o token da URL
+
+  if (!token) {
+    return res.status(400).json({ message: "Token é obrigatório" });
+  }
+
+  try {
+    // Busca e remove a reserva com o token correspondente
+    const deletedReserva = await Informatica.findOneAndDelete({ token });
+
+    if (!deletedReserva) {
+      return res.status(404).json({ message: "Reserva não encontrada" });
+    }
+
+    res.status(200).json({ message: "Reserva apagada com sucesso" });
+  } catch (error) {
+    res.status(500).json({ message: "Erro ao apagar reserva" });
+  }
+});
+
+// Rota para apagar uma reserva com base no token
+app.delete("/multidisciplinar/delete/:token", async (req, res) => {
+  const { token } = req.params; // Obtém o token da URL
+
+  if (!token) {
+    return res.status(400).json({ message: "Token é obrigatório" });
+  }
+
+  try {
+    // Busca e remove a reserva com o token correspondente
+    const deletedReserva = await Multidisciplinar.findOneAndDelete({ token });
+
+    if (!deletedReserva) {
+      return res.status(404).json({ message: "Reserva não encontrada" });
+    }
+
+    res.status(200).json({ message: "Reserva apagada com sucesso" });
+  } catch (error) {
+    res.status(500).json({ message: "Erro ao apagar reserva" });
+  }
+});
+
 // Email validation functions
 const validDomains = ["kroton.com.br", "cogna.com.br"];
 
