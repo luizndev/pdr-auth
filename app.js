@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const dns = require("dns");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const nodemailer = require("nodemailer");
 require("dotenv").config();
 
 const app = express();
@@ -17,6 +18,98 @@ mongoose.connect(
     useUnifiedTopology: true,
   }
 );
+
+const sendRecoveryEmail = async (email, token) => {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Portal de Reservas | Recuperação de Senha",
+    html: `
+      <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; border: 1px solid #ddd; border-radius: 10px; max-width: 500px; margin: auto;">
+        <h2 style="color: #333;">Recuperação de Senha</h2>
+        <p style="color: #555;">Recebemos uma solicitação para redefinir sua senha.</p>
+        <p style="color: #555;">Clique no botão abaixo para criar uma nova senha:</p>
+        <a href="https://anhangueratx-pdr-v2.vercel.app/recover/${token}" 
+          style="display: inline-block; background-color:rgb(255, 85, 0); color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+          Redefinir Senha
+        </a>
+        <p style="color: #777; font-size: 14px; margin-top: 20px;">
+          Se você não solicitou essa alteração, ignore este e-mail.
+        </p>
+      </div>
+    `,
+  };
+
+  return transporter.sendMail(mailOptions);
+};
+
+
+app.post("/auth/recover", async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: "Email é obrigatório" });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "Usuário não encontrado" });
+    }
+
+    const secret = process.env.SECRET;
+    const token = jwt.sign({ id: user._id }, secret, { expiresIn: "1h" });
+
+    await sendRecoveryEmail(email, token);
+
+    res.status(200).json({ message: "Link de recuperação enviado para o seu e-mail" });
+  } catch (error) {
+    console.error("Erro ao enviar e-mail:", error);
+    res.status(500).json({ message: "Erro ao enviar e-mail de recuperação" });
+  }
+});
+
+app.post("/auth/recover/:token", async (req, res) => {
+  const { token } = req.params;
+  const { password, confirmpassword } = req.body;
+
+  if (!password || !confirmpassword) {
+    return res.status(400).json({ message: "Preencha todos os campos" });
+  }
+
+  if (password !== confirmpassword) {
+    return res.status(400).json({ message: "As senhas não conferem" });
+  }
+
+  try {
+    const secret = process.env.SECRET;
+    const decoded = jwt.verify(token, secret);
+
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(404).json({ message: "Usuário não encontrado" });
+    }
+
+    const salt = await bcrypt.genSalt(12);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    user.password = passwordHash;
+    await user.save();
+
+    res.status(200).json({ message: "Senha alterada com sucesso" });
+  } catch (error) {
+    res.status(500).json({ message: "Erro ao recuperar a senha" });
+  }
+});
+
 
 // Define Mongoose schemas
 const informaticaSchema = new mongoose.Schema({
