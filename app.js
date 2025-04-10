@@ -263,10 +263,6 @@ const isDomainValid = (domain) => {
   });
 };
 
-app.post("/auth/deleteAccount", async (req, res) => {
-  const { email } = red.body;
-  return res.status(201).json({`Recebido E-mail`})
-});
 
 app.post("/auth/register", async (req, res) => {
   const { name, email, password, confirmpassword, role } = req.body;
