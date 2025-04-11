@@ -469,6 +469,22 @@ app.get("/minhassolicitacoes/:email", checkToken, async (req, res) => {
   }
 });
 
+app.post("/auth/redefinir", async (req, res) => {
+  const { email } = req.body
+
+  if(!email) {
+    return res.status(400).json({ message: "Preencha todos os campos" })
+  }
+  
+  const deletedEmail = await User.findOneAndDelete({ email });
+  if(!deletedEmail){
+    return res.status(400).json({ message: "Usuario não possui uma conta" })
+  }
+
+  return res.status(201).json({message: "Conta redefinida com sucesso!"})
+});
+
+
 
 app.listen(80, () => {
   console.log("Servidor Ligado com sucesso.");
